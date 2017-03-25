@@ -10,6 +10,8 @@ import org.bytedeco.javacpp.opencv_core._
   */
 object ImageTextDetectionApp extends App {
 
+  //TODO: Добавить Ammonite для поиска по всем файлам
+
   val imageFilename = "IMG_2090.JPG"
   val mat = opencv_imgcodecs.imread(imageFilename)
 
