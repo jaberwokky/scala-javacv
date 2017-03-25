@@ -21,9 +21,11 @@ object ImageTextDetectionApp extends App {
     opencv_imgcodecs.imwrite("channelsB" + ind + ".jpg", channels.get(ind))
   })
 
-  val appendChannels = new MatVector()
+  val appendChannels = new MatVector(channels.size())
 
-  appendChannels.put(channels)
+  (0 until channels.size().toInt).foreach(ind => {
+    channels.get(ind).copyTo(appendChannels.get(ind))
+  })
 
   (0 until channels.size().toInt).foreach(ind => {
     opencv_imgcodecs.imwrite("channelsA" + ind + ".jpg", channels.get(ind))
@@ -34,34 +36,16 @@ object ImageTextDetectionApp extends App {
 
   channels.resize(channels.size()*2)
 
-  val neg = new Mat(
-    channels.get(0).rows(),
-    channels.get(0).cols(),
-    channels.get(0).`type`(),
-    new Scalar(255)
-  )
-
-  println(neg.data().getString)
-
-  opencv_imgcodecs.imwrite("neg.jpg", neg)
-
-  val tmpMat = new Mat()
-
   (0 until oldSize).foreach(ind => {
-    //tmpMat.put(appendChannels.get(ind))
-    opencv_core.subtract(neg, appendChannels.get(ind), tmpMat)
-    //opencv_core.subtract(new Scalar(255), tmpMat)
-    opencv_imgcodecs.imwrite("subtr" + ind + ".jpg", tmpMat)
-  })
-
-  (0 until oldSize).foreach(ind => {
-    tmpMat.push_back(appendChannels.get(ind))
-    opencv_core.subtract(new Scalar(255), tmpMat)
-    channels.put(ind + oldSize, tmpMat)
+    val tmp = appendChannels.get(ind)
+    bitwise_not(channels.get(ind), tmp)
+    opencv_imgcodecs.imwrite("subtr" + ind + ".jpg", tmp)
+    opencv_imgcodecs.imwrite("channelsAfterBitwise" + ind + ".jpg", channels.get(ind))
+    channels.put(ind + oldSize, tmp)
   })
 
   (0 until channels.size().toInt).foreach(ind => {
-    opencv_imgcodecs.imwrite("channels" + ind + ".jpg", channels.get(ind))
+    opencv_imgcodecs.imwrite("AllNewChannels" + ind + ".jpg", channels.get(ind))
   })
 
   val er_filter1 = opencv_text.createERFilterNM1(
