@@ -10,7 +10,13 @@ import org.bytedeco.javacpp.opencv_core._
   */
 object ImageTextDetectionApp extends App {
 
-  //TODO: Добавить Ammonite для поиска по всем файлам
+  def getRecursiveListOfFiles(dir: File): Array[File] = {
+    val files = dir.listFiles()
+    val images = dir.listFiles.filter(file => Set("jpg", "png", "jpeg").contains(file.getName.toLowerCase()))
+    images ++ files.filter(_.isDirectory).flatMap(getRecursiveListOfFiles)
+  }
+
+  val files = getRecursiveListOfFiles(new File("C:\\Users\\SBT-Zheltov-AV"))
 
   val imageFilename = "IMG_2090.JPG"
   val mat = opencv_imgcodecs.imread(imageFilename)
