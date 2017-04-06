@@ -16,10 +16,11 @@ object ImageTextDetectionApp extends App {
     images ++ files.filter(_.isDirectory).flatMap(getRecursiveListOfFiles)
   }
 
-  val files = getRecursiveListOfFiles(new File("/home/andrey/Downloads"))
+  /*val files = getRecursiveListOfFiles(new File("IMG_1695.JPG"))*/
+  val files = Array("IMG_1695.JPG", "IMG_2090.JPG")
 
-  files.foreach(file => {
-    val imageFilename = file.toString
+  files.par.foreach(file => {
+    val imageFilename = file
     val mat = opencv_imgcodecs.imread(imageFilename)
 
     val channels = new MatVector()
@@ -44,9 +45,9 @@ object ImageTextDetectionApp extends App {
 
     val er_filter1 = opencv_text.createERFilterNM1(
       opencv_text.loadClassifierNM1("trained_classifierNM1.xml"),
-      16,
-      0.00015f,
-      0.13f,
+      35,
+      0.00030f,
+      0.3f,
       0.2f,
       true,
       0.5f
@@ -69,11 +70,12 @@ object ImageTextDetectionApp extends App {
 
     opencv_text.erGrouping(mat, channels, regions, regionGroups, groupsBoxes)
 
-    (0 until groupsBoxes.size().toInt).foreach(ind => {
-      opencv_imgproc.rectangle(mat, groupsBoxes.get(ind).tl(), groupsBoxes.get(ind).br(), new Scalar(255))
-    })
-
-    opencv_imgcodecs.imwrite("grouping" + file.toString.split("/").lastOption.getOrElse(file.toString), mat)
+    if (groupsBoxes.size() > 0 ) {
+      (0 until groupsBoxes.size().toInt).foreach(ind => {
+        opencv_imgproc.rectangle(mat, groupsBoxes.get(ind).tl(), groupsBoxes.get(ind).br(), new Scalar(255))
+      })
+      opencv_imgcodecs.imwrite("grouping" + file.toString.split("/").lastOption.getOrElse(file.toString), mat)
+    }
   })
   println("Here")
 }
